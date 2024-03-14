@@ -1,4 +1,4 @@
+python-dotenv
 langchain
-ctransformers
-streamlit
 openai
+streamlit
