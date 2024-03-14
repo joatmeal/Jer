@@ -11,7 +11,7 @@ API_KEY = os.getenv('OPENAI_API_KEY')
 
 # Streamlit app
 def main():
-    st.title("OpenAI Haiku Generator")
+    st.title("OpenAI Poem Generator")
 
     # API key input
     api_key = st.text_input("Enter your OpenAI API key:", type="password")
