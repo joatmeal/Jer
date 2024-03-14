@@ -2,10 +2,7 @@ from dotenv import load_dotenv
 import os
 import streamlit as st
 from langchain.llms import OpenAI
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
 from langchain.memory import ConversationBufferMemory
-from langchain.utilities import WikipediaAPIWrapper
 
 # Load environment variables from .env file
 load_dotenv()
@@ -27,22 +24,6 @@ def main():
         # Create a ConversationBufferMemory object to store chat history
         memory = ConversationBufferMemory(input_key='human', memory_key='chat_history')
 
-        # Create a PromptTemplate with the given prompt
-        prompt = PromptTemplate(
-            input_variables=['human', 'chat_history'],
-            template='''You are an expert in developing test cases for the purposes of automating the Enterprise Justice Case Management System. Your job is to create a detailed test case by interviewing me about the business process to be tested. You will first prompt me to provide a document that describes the business process. For each activity in the business process, you will help me generate a test case for that activity using a user manual that I will upload when you prompt me. When all of the activities have a test case written, I will ask you to generate a detailed test case for the complete business process.
-
-            Chat History:
-            {chat_history}
-
-            Human: {human}
-
-            Assistant:'''
-        )
-
-        # Create an LLMChain with the specified prompt, llm, and memory
-        chain = LLMChain(prompt=prompt, llm=llm, verbose=True, memory=memory)
-
         # Chat container
         chat_container = st.container()
 
@@ -50,12 +31,21 @@ def main():
         user_input = st.text_input("You:", key='user_input', value='')
 
         if user_input:
-            # Pass the user input to the chain and get the response
-            response = chain.run(human=user_input)
+            # Append the user input to the chat history
+            memory.save_context({'human': user_input}, {'ai': ''})
 
-            # Append the user input and assistant response to the chat container
+            # Generate the AI response
+            ai_response = llm.predict(
+                prompt=f"{memory.load_memory_variables({})}Human: {user_input}\nAssistant:",
+                stop=["Human:"]
+            )
+
+            # Append the AI response to the chat history
+            memory.save_context({'human': user_input}, {'ai': ai_response})
+
+            # Append the user input and AI response to the chat container
             chat_container.text(f"You: {user_input}")
-            chat_container.text(f"Assistant: {response}")
+            chat_container.text(f"Assistant: {ai_response}")
 
         # File uploader
         uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True)
@@ -65,12 +55,21 @@ def main():
                 # Read the contents of the file
                 file_contents = file.read().decode("utf-8")
 
-                # Pass the file contents to the chain and get the response
-                response = chain.run(human=file_contents)
+                # Append the file contents to the chat history
+                memory.save_context({'human': file_contents}, {'ai': ''})
 
-                # Display the response
+                # Generate the AI response based on the file contents
+                ai_response = llm.predict(
+                    prompt=f"{memory.load_memory_variables({})}Human: {file_contents}\nAssistant:",
+                    stop=["Human:"]
+                )
+
+                # Append the AI response to the chat history
+                memory.save_context({'human': file_contents}, {'ai': ai_response})
+
+                # Display the AI response
                 st.subheader(f"Test Case for {file.name}")
-                st.text(response)
+                st.text(ai_response)
 
     else:
         st.warning("Please enter your OpenAI API key to generate test cases.")
