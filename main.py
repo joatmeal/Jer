@@ -47,15 +47,15 @@ def main():
         chat_container = st.container()
 
         # User input
-        user_input = st.text_input("You:", key='user_input')
+user_input = st.text_input("You:", key='user_input', value='')
 
-        if user_input:
-            # Pass the user input to the chain and get the response
-            response = chain.run(human=user_input)
+if user_input:
+    # Pass the user input to the chain and get the response
+    response = chain.run(human=user_input)
 
-            # Append the user input and assistant response to the chat container
-            chat_container.text(f"You: {user_input}")
-            chat_container.text(f"Assistant: {response}")
+    # Append the user input and assistant response to the chat container
+    chat_container.text(f"You: {user_input}")
+    chat_container.text(f"Assistant: {response}")
 
             # Clear the user input
             st.session_state.user_input = ""
