@@ -21,9 +21,9 @@ def main():
         llm = OpenAI(openai_api_key=api_key, temperature=0.9)
 
         # Generate haiku button
-        if st.button("Generate Haiku"):
+        if st.button("Generate poem"):
             # Generate a haiku
-            haiku = llm("write a haiku about my father Mark")
+            haiku = llm("write a poem about my wife Mariah")
 
             # Display the generated haiku
             st.subheader("Generated Haiku")
