@@ -26,29 +26,33 @@ def main():
         llm = OpenAI(openai_api_key=api_key, temperature=0.9)
 
         # File uploader
-        uploaded_file = st.file_uploader("Choose a file", type=["txt", "docx", "pdf"])
+        uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True, type=["txt", "docx", "pdf"])
 
-        if uploaded_file is not None:
-            # Read the contents of the file
-            file_contents = uploaded_file.read().decode("utf-8")
+        if uploaded_files:
+            for uploaded_file in uploaded_files:
+                try:
+                    # Read the contents of the file
+                    file_contents = uploaded_file.read().decode("utf-8")
 
-            # Prompt
-            prompt = st.text_area("Prompt", value="Read through the attached Quick Reference Guide word document closely, summarizing the key steps of the business process. Then, write out a detailed manual test case that covers each of the steps, inputs, and expected outputs of the business process. The test case should be written clearly enough that someone unfamiliar with the process could execute it successfully. Make sure to include:\n\nA descriptive test case name\nAny prerequisite steps\nTest data to use\nStep-by-step actions to take\nInputs and data to use at each step\nExpected system responses and outputs at each step\nAny cleanup steps to reset the state for the next test run\n\nThe test case should cover the normal successful path through the business process.\n\nIn summary, please read through the attached Quick Reference Guide and write a comprehensive manual test case that covers the end-to-end business process flow and key validation points, written clearly enough for someone new to follow and execute.", height=300)
+                    # Prompt
+                    prompt = st.text_area("Prompt", value="Read through the attached Quick Reference Guide word document closely, summarizing the key steps of the business process. Then, write out a detailed manual test case that covers each of the steps, inputs, and expected outputs of the business process. The test case should be written clearly enough that someone unfamiliar with the process could execute it successfully. Make sure to include:\n\nA descriptive test case name\nAny prerequisite steps\nTest data to use\nStep-by-step actions to take\nInputs and data to use at each step\nExpected system responses and outputs at each step\nAny cleanup steps to reset the state for the next test run\n\nThe test case should cover the normal successful path through the business process.\n\nIn summary, please read through the attached Quick Reference Guide and write a comprehensive manual test case that covers the end-to-end business process flow and key validation points, written clearly enough for someone new to follow and execute.", height=300)
 
-            # Create a PromptTemplate with the given prompt
-            prompt_template = PromptTemplate(input_variables=["file_contents"], template=prompt)
+                    # Create a PromptTemplate with the given prompt
+                    prompt_template = PromptTemplate(input_variables=["file_contents"], template=prompt)
 
-            # Create an LLMChain with the specified prompt, llm, and memory
-            chain = LLMChain(prompt=prompt_template, llm=llm)
+                    # Create an LLMChain with the specified prompt, llm, and memory
+                    chain = LLMChain(prompt=prompt_template, llm=llm)
 
-            # Generate the manual test case
-            if st.button("Submit"):
-                # Pass the file contents to the chain and get the response
-                response = chain.run(file_contents=file_contents)
+                    # Generate the manual test case
+                    if st.button(f"Generate Test Case for {uploaded_file.name}"):
+                        # Pass the file contents to the chain and get the response
+                        response = chain.run(file_contents=file_contents)
 
-                # Display the response
-                st.subheader(f"Manual Test Case for {uploaded_file.name}")
-                st.text(response)
+                        # Display the response
+                        st.subheader(f"Manual Test Case for {uploaded_file.name}")
+                        st.text(response)
+                except Exception as e:
+                    st.error(f"Error processing file {uploaded_file.name}: {str(e)}")
     else:
         st.warning("Please enter your OpenAI API key to generate test cases.")
 
