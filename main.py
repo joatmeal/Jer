@@ -27,7 +27,7 @@ def main():
         # Create a ConversationBufferMemory object to store chat history
         memory = ConversationBufferMemory(input_key='human', memory_key='chat_history')
         
-        prompt = PromptTemplate(
+       prompt = PromptTemplate(
     input_variables=['human', 'chat_history', 'context'],  
     template='''You are an AI assistant created by OpenAI. Your role is to assist in developing test cases for the purposes of automating the Enterprise Justice Case Management System. The user will provide a request or prompt, along with any relevant files as context. Generate a response based on the user's request and the provided context.
 
