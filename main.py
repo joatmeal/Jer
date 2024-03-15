@@ -11,7 +11,6 @@ cost_of_response = 0
 API_KEY = config('OPENAI_API_KEY')
 openai.api_key = API_KEY
 
-
 def make_request(question_input: str):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -21,9 +20,7 @@ def make_request(question_input: str):
     )
     return response
 
-
 st.header("Streamlit + OpenAI ChatGPT API")
-
 st.markdown("""---""")
 
 question_input = st.text_input("Enter question")
@@ -40,32 +37,29 @@ if rerun_button:
     response = make_request(question_input)
 else:
     pass
+
 # File uploader
-        uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True)
-        
-        if uploaded_files:
-            for file in uploaded_files:
-                # Read the contents of the file
-                file_contents = file.read().decode("utf-8") 
-                
-                # Pass the file contents to the chain and get the response
-                response = chain.run(human=file_contents)
-                
-                # Display the response
-                st.subheader(f"Test Case for {file.name}")
-                st.text(response)
+uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True)
+
+if uploaded_files:
+    for file in uploaded_files:
+        # Read the contents of the file
+        file_contents = file.read().decode("utf-8")
+        # Pass the file contents to the chain and get the response
+        response = chain.run(human=file_contents)
+        # Display the response
+        st.subheader(f"Test Case for {file.name}")
+        st.text(response)
+
 if response:
     st.write("Response:")
     st.write(response["choices"][0]["message"]["content"])
-
     prompt_tokens = response["usage"]["prompt_tokens"]
     completion_tokes = response["usage"]["completion_tokens"]
     total_tokens_used = response["usage"]["total_tokens"]
-
     cost_of_response = total_tokens_used * 0.000002
 else:
     pass
-
 
 with st.sidebar:
     st.title("Usage Stats:")
