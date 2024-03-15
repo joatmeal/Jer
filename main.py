@@ -40,7 +40,20 @@ if rerun_button:
     response = make_request(question_input)
 else:
     pass
-
+# File uploader
+        uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True)
+        
+        if uploaded_files:
+            for file in uploaded_files:
+                # Read the contents of the file
+                file_contents = file.read().decode("utf-8") 
+                
+                # Pass the file contents to the chain and get the response
+                response = chain.run(human=file_contents)
+                
+                # Display the response
+                st.subheader(f"Test Case for {file.name}")
+                st.text(response)
 if response:
     st.write("Response:")
     st.write(response["choices"][0]["message"]["content"])
